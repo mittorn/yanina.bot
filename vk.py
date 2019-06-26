@@ -3,7 +3,7 @@ import requests
 import time
 lp_modes = aenum('LP_PAGE','LP_GROUP')
 call_modes = aenum('CALL_NORMAL', 'CALL_AUDIO' ,'CALL_GROUP', 'CALL_BROWSER')
-api_versions = { CALL_NORMAL : '5.95', CALL_AUDIO : '5.71', CALL_GROUP : '5.50' }
+api_versions = { CALL_NORMAL : '5.95', CALL_AUDIO : '5.71', CALL_GROUP : '5.95' }
 api_tokens = {}
 
 def vk_call(mode,method,specparam, ignore = False):
