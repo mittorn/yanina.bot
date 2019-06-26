@@ -33,7 +33,12 @@ def im_parse(s):
 #	print spl
 	error = spl[4]
 	if int(error) != 0:
-		raise Exception(spl[5])
+		ex = 'Unknown VK exception'
+		try:
+			ex  = spl[5].decode('utf-8')
+		except Exception:
+			pass
+		raise Exception(ex)
 	base = spl[5]
 	if base[0] == '<':
 		l = base.find('>')

@@ -5,6 +5,7 @@ lp_modes = aenum('LP_PAGE','LP_GROUP')
 call_modes = aenum('CALL_NORMAL', 'CALL_AUDIO' ,'CALL_GROUP', 'CALL_BROWSER')
 api_versions = { CALL_NORMAL : '5.95', CALL_AUDIO : '5.71', CALL_GROUP : '5.95' }
 api_tokens = {}
+config = {}
 
 def vk_call(mode,method,specparam, ignore = False):
 	try:
@@ -27,10 +28,11 @@ def vk_call(mode,method,specparam, ignore = False):
 		if not ignore:
 			raise e
 
-def _load_config():
+def load_config():
 	global config
-	config = load_json('vk')
+	newconfig = load_json('vk')
+	config.update(newconfig)
 	api_tokens[CALL_NORMAL] = config['token_normal']
 	api_tokens[CALL_AUDIO] = config['token_audio']
 	api_tokens[CALL_GROUP] = config['token_group']
-_load_config()
+load_config()

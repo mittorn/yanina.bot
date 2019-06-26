@@ -6,12 +6,14 @@ import sys, os
 from Queue import Queue
 
 def handle_msg(msg):
-#	try:
-		message = vk_call(CALL_NORMAL,'messages.getById',{'message_ids':msg[0],'extended':1})['items'][0]
-		print message
+	try:
+		message = vk_call(CALL_NORMAL,'messages.getById',{'message_ids':msg[0],'extended':1,'fields':'first_name,last_name'})['items'][0]
+		message['cmd'] = msg[2]
+		print(json.dumps(message,ensure_ascii=False).encode('utf-8'))
+
 		handle_command(msg[1], msg[2], msg[3], message)
-#	except Exception as e:
-#		pass
+	except Exception as e:
+		print('Handle: ',e)
 
 def enqueue_msg(msg):
 	msg_queue.put(msg)

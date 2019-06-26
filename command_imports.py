@@ -2,4 +2,4 @@
 
 from vk import *
 from command import *
-from hybrid import vk_send
+from hybrid import vk_send, hybrid

@@ -45,7 +45,7 @@ def mon_request(peer_id):
 def vk_send(peer_id, text, attachments = None):
 	if not peer_id in hybrid:
 		mon_request(peer_id)
-	time.sleep(2)
+		time.sleep(2)
 	vk_call(CALL_GROUP,'messages.send', {'peer_id':hybrid[peer_id], 'random_id':random.random(),'message':text})
 
 def mon_page():
@@ -53,7 +53,7 @@ def mon_page():
 	while True:
 		updates = lp_wait(LP_PAGE)
 		for u in updates:
-			print u
+			print(json.dumps(u,ensure_ascii=False).encode('utf-8'))
 			if u[0] == 4:
 				message_id = u[1]
 				flags = u[2]
@@ -61,13 +61,6 @@ def mon_page():
 				ts = u[4]
 				title = u[5]
 				text = u[6]
-				if text == 'test':
-					mon_request(peer_id)
-				if text == 'test2':
-					send_text(peer_id,'passed')
-				if text == 'test3':
-					vk_call(CALL_GROUP,'messages.send', {'peer_id':hybrid[peer_id], 'random_id':random.random(),'message':'test_', 'forward_messages': str(convid)+','+str(convid-1)})
-#					vk_call(CALL_GROUP,'messages.send', {'peer_id':hybrid[peer_id], 'random_id':random.random(),'message':'test_', 'reply_to': str(convid)})
 				spl = text.split(' ')
 				if spl[0].lower() in config['names']:
 					enqueue_msg((message_id,peer_id,spl[1],text[len(spl[0])+len(spl[1])+2:]))
