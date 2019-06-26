@@ -1,12 +1,7 @@
 from lp import *
 import im
-import threading
-import random
-import sys
-import os
-from Queue import Queue
-print('test')
-
+import threading, time, random
+from handler import enqueue_msg
 try:
 	hybrid = load_object('hybrid')
 except Exception as e:
@@ -21,8 +16,8 @@ def mon_lp():
 	while True:
 		updates = lp_wait(LP_GROUP)
 		for u in updates:
-				print u
-			#try:
+			print u
+			try:
 				if u['type'] == 'message_new':
 					from_id = u['object']['from_id']
 					convid = u['object']['conversation_message_id']
@@ -30,11 +25,12 @@ def mon_lp():
 						parse_id = int(u['object']['text'].split('|')[1].split(']')[0])
 						hybrid[parse_id] = u['object']['peer_id']
 						save_object("hybrid", hybrid)
-		#	except Exception as e:
-		#		print str(e)
-thread = threading.Thread(target=mon_lp, args=())
-thread.daemon = True
-thread.start();
+			except Exception as e:
+				print str(e)
+def mon_start():
+	thread = threading.Thread(target=mon_lp, args=())
+	thread.daemon = True
+	thread.start();
 
 def mon_request(peer_id):
 	try:
@@ -46,7 +42,10 @@ def mon_request(peer_id):
 	time.sleep(1)
 	vk_call(CALL_NORMAL,'messages.delete', {'message_ids':str(message_id),'delete_for_all':1}, True)
 
-def send_text(peer_id, text):
+def vk_send(peer_id, text, attachments = None):
+	if not peer_id in hybrid:
+		mon_request(peer_id)
+	time.sleep(2)
 	vk_call(CALL_GROUP,'messages.send', {'peer_id':hybrid[peer_id], 'random_id':random.random(),'message':text})
 
 def mon_page():
@@ -69,31 +68,6 @@ def mon_page():
 				if text == 'test3':
 					vk_call(CALL_GROUP,'messages.send', {'peer_id':hybrid[peer_id], 'random_id':random.random(),'message':'test_', 'forward_messages': str(convid)+','+str(convid-1)})
 #					vk_call(CALL_GROUP,'messages.send', {'peer_id':hybrid[peer_id], 'random_id':random.random(),'message':'test_', 'reply_to': str(convid)})
-				if text == 'test4':
-					msg_queue.put(message_id)
-
-
-
-def handle_msg(msg):
-	message = vk_call(CALL_NORMAL,'messages.getById',{'message_ids':msg,'extended':1})['items'][0]
-	print message
-	send_text(message['peer_id'], 'handled')
-
-def worker():
-    while True:
-        item = msg_queue.get()
-        if item is None:
-            break
-        handle_msg(item)
-        msg_queue.task_done()
-
-msg_queue = Queue()
-threads = []
-for i in range(config['num_threads']):
-	t = threading.Thread(target=worker)
-	t.start()
-	threads.append(t)
-try:
-	mon_page()
-except KeyboardInterrupt:
-	os._exit(0)
+				spl = text.split(' ')
+				if spl[0].lower() in config['names']:
+					enqueue_msg((message_id,peer_id,spl[1],text[len(spl[0])+len(spl[1])+2:]))
