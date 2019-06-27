@@ -36,8 +36,7 @@ def mon_request(peer_id):
 	try:
 		im.add_chat_bot(peer_id, -config['group_id'])
 	except Exception as e:
-		#print e
-		pass
+		print('Failed to add bot: ',e)
 	message_id = vk_call(CALL_NORMAL,'messages.send', {'peer_id':peer_id, 'random_id':random.random(),'message':'[club'+str(config['group_id'])+'|'+str(peer_id)+']'})
 	time.sleep(1)
 	vk_call(CALL_NORMAL,'messages.delete', {'message_ids':str(message_id),'delete_for_all':1}, True)
@@ -46,7 +45,10 @@ def vk_send(peer_id, text, attachments = None):
 	if not peer_id in hybrid:
 		mon_request(peer_id)
 		time.sleep(2)
-	vk_call(CALL_GROUP,'messages.send', {'peer_id':hybrid[peer_id], 'random_id':random.random(),'message':text})
+	params = {'peer_id':hybrid[peer_id], 'random_id':random.random(),'message':text}
+	if attachments:
+		params['attachment'] = attachments
+	vk_call(CALL_GROUP,'messages.send',params)
 
 def mon_page():
 	lp_start(LP_PAGE)
