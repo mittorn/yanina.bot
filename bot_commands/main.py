@@ -8,10 +8,6 @@ def test(p,t,m):
 	"cmd тест Просто тест"
 	vk_send(p,'тест')
 
-def xyu(p,t,m):
-	"cmd хуй"
-	vk_send(p,'пошёл нахуй')
-
 def reload(p,t,m):
 	"admin reload,обновись"
 	load_config()
