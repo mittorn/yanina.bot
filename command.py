@@ -39,7 +39,11 @@ def load_commands():
 				f = v[d]
 				if not type(f) is types.FunctionType:continue
 				if not f.__doc__:continue
-				doc = f.__doc__.decode('utf-8').split(' ')
+				if sys.version_info[0] <= 2:
+					docstr = f.__doc__.decode('utf-8')
+				else:
+					docstr = f.__doc__
+				doc = docstr.split(' ')
 				if doc[0] =='cmd':
 					l = doc[1].split(',')
 					for c in l:
@@ -55,7 +59,7 @@ def load_commands():
 			d1.update(cmd_imports.__dict__)
 			d1.update(m.__dict__)
 			m.__dict__.update(d1)
-		except Exception:
+		except Exception as e:
 			print(e)
 
 def unload_commands():

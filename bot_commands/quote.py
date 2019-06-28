@@ -33,7 +33,7 @@ def render_text(image, x, y, text, width, height, r, g, b):
 			hmax = 0
 		if w == 0:
 			continue
-		h = len(bitmap.buffer)/w
+		h = int(len(bitmap.buffer)/w)
 		if h > hmax: hmax = h
 		try:
 			for i in range(h):
@@ -69,7 +69,7 @@ def quote(p,t,m):
 	attachments = []
 
 	for fwd in m['fwd_messages']:
-		w = 500 + len(fwd['text'])/7
+		w = 500 + int(len(fwd['text'])/7)
 		img = create_image(w,1024)
 		if fwd['from_id'] > 0:
 			u = vk_call(CALL_GROUP,'users.get',{'user_ids':fwd['from_id'],'fields':'photo_100'})[0]
@@ -83,17 +83,15 @@ def quote(p,t,m):
 			pass
 		face.set_char_size( 1000 )
 		y = render_text(img,120,50,fwd['text'],w-50,1024,1,1,1) + 50
-		print u
 		face.set_char_size( 1500 )
 		y = render_text(img, w - 300, y,  name, w, 1024,random.uniform(0.4,1),random.uniform(0.4,1),random.uniform(0.4,1)) + 50
-		if y > 1024: y = 1024
+		if not y <= 1024: y = 1024
 		f = VkUploader(server['upload_url'],'photo','photo.png','image/png')
 		compress_image(img[0:y],w,y,f)
 		for i in img:del i[:]
 		del img[:]
 		j = f.finish()
 
-		print j
 		rr = vk_call(CALL_GROUP,'photos.saveMessagesPhoto',j)
 		del f
 		attachments.append('photo'+str(rr[0]['owner_id'])+'_'+str(rr[0]['id']))

@@ -3,7 +3,10 @@ from lp import *
 from command import *
 import threading
 import sys, os
-from Queue import Queue
+try:
+	from Queue import Queue
+except Exception:
+	from queue import Queue
 import traceback
 def handle_msg(msg):
 	try:

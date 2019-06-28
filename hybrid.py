@@ -16,7 +16,7 @@ def mon_lp():
 	while True:
 		updates = lp_wait(LP_GROUP)
 		for u in updates:
-			print u
+			print(u)
 			try:
 				if u['type'] == 'message_new':
 					from_id = u['object']['from_id']
@@ -26,7 +26,7 @@ def mon_lp():
 						hybrid[parse_id] = u['object']['peer_id']
 						save_object("hybrid", hybrid)
 			except Exception as e:
-				print str(e)
+				print(str(e))
 def mon_start():
 	thread = threading.Thread(target=mon_lp, args=())
 	thread.daemon = True

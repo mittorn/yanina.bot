@@ -6,7 +6,10 @@ def xyu(p,t,m):
 	if len(t) == 0:
 		vk_send(p,'пошёл нахуй')
 		return
-	a=t.decode('utf-8').split()
+	if sys.version_info[0] <= 2:
+		a=t.decode('utf-8').split()
+	else:
+		a = str(t).split()
 	m=[u"а", u"о", u"е", u"ё", u"э", u"у", u"ю", u"я", u"и"]
 	s={
 	    u'я':u"хуя",
@@ -20,7 +23,6 @@ def xyu(p,t,m):
 	    u'и':u"хуи"
 	}
 	r=u""
-	print a
 	try:
 		for n in a:
 			if len(n)<4:

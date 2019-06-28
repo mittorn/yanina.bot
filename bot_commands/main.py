@@ -11,6 +11,6 @@ def test(p,t,m):
 def reload(p,t,m):
 	"admin reload,обновись"
 	load_config()
-	print 'перезагрузка команд'
+	print('перезагрузка команд')
 	reload_commands()
-	print 'done'
+	print('done')

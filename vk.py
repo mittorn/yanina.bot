@@ -39,15 +39,17 @@ def load_config():
 
 
 
-
-import httplib, urlparse
-
+try:
+	import httplib
+except Exception:
+	import http.client as httplib
 LIMIT = '----------lImIt_of_THE_fIle_eW_$'
 class VkUploader:
 	def __init__(self,url,name,fname,mime):
-		parsed = urlparse.urlparse(url)
-		self.con = httplib.HTTPSConnection(parsed.netloc)
-		self.con.putrequest('POST', '%s?%s' % (parsed.path, parsed.query)) #, headers={'Host': parsed.netloc})
+		server = url.split('/')[2]
+		
+		self.con = httplib.HTTPSConnection(server)
+		self.con.putrequest('POST', url[8+len(server):])
 		self.con.putheader('content-type', 'multipart/form-data; boundary=%s' % LIMIT)
 		s = ''
 		s +=('--'+LIMIT+'\r\n')
@@ -55,17 +57,17 @@ class VkUploader:
 		s +=('Content-Type: %s\r\n\r\n' % mime)
 		self.con.putheader('Transfer-Encoding', 'chunked')
 		self.con.endheaders()
-		self.write(s)
-		del s,parsed
+		self.write(s.encode('ascii'))
+		del s
 
 	def write(self,data):
 		if len(data):
-			self.con.send(str(hex(len(data)))[2:]+'\r\n')
-			self.con.send(data)
-			self.con.send('\r\n')
+			self.con.send(bytes((str(hex(len(data)))[2:]+'\r\n').encode('ascii')))
+			self.con.send(bytes(data))
+			self.con.send(b'\r\n')
 	def finish(self):
-		self.write('\r\n--'+LIMIT+'--\r\n\r\n')
-		self.con.send('0\r\n\r\n')
+		self.write(b'\r\n--'+LIMIT.encode('ascii')+b'--\r\n\r\n')
+		self.con.send(b'0\r\n\r\n')
 		s = json.loads(self.con.getresponse().read())
 		del self.con
 		return s

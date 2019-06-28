@@ -1,4 +1,7 @@
-import cPickle as pickle
+try:
+	import cPickle as pickle
+except Exception:
+	import pickle
 import json
 import inspect
 def aenum(*s):
