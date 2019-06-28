@@ -4,7 +4,7 @@ from command import *
 import threading
 import sys, os
 from Queue import Queue
-
+import traceback
 def handle_msg(msg):
 	try:
 		message = vk_call(CALL_NORMAL,'messages.getById',{'message_ids':msg[0],'extended':1,'fields':'first_name,last_name'})['items'][0]
@@ -13,7 +13,7 @@ def handle_msg(msg):
 
 		handle_command(msg[1], msg[2], msg[3], message)
 	except Exception as e:
-		print('Handle: ',e)
+		print('Handle: ',traceback.print_exc(e))
 
 def enqueue_msg(msg):
 	msg_queue.put(msg)

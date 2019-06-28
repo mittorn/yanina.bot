@@ -65,4 +65,7 @@ def mon_page():
 				text = u[6]
 				spl = text.split(' ')
 				if spl[0].lower() in config['names']:
-					enqueue_msg((message_id,peer_id,spl[1],text[len(spl[0])+len(spl[1])+2:]))
+					try:
+						enqueue_msg((message_id,peer_id,spl[1],text[len(spl[0])+len(spl[1])+2:]))
+					except Exception:
+						pass
