@@ -35,4 +35,40 @@ def load_config():
 	api_tokens[CALL_NORMAL] = config['token_normal']
 	api_tokens[CALL_AUDIO] = config['token_audio']
 	api_tokens[CALL_GROUP] = config['token_group']
+
+
+
+
+
+import httplib, urlparse
+
+LIMIT = '----------lImIt_of_THE_fIle_eW_$'
+class VkUploader:
+	def __init__(self,url,name,fname,mime):
+		parsed = urlparse.urlparse(url)
+		self.con = httplib.HTTPSConnection(parsed.netloc)
+		self.con.putrequest('POST', '%s?%s' % (parsed.path, parsed.query)) #, headers={'Host': parsed.netloc})
+		self.con.putheader('content-type', 'multipart/form-data; boundary=%s' % LIMIT)
+		s = ''
+		s +=('--'+LIMIT+'\r\n')
+		s +=('Content-Disposition: form-data; name="%s"; filename="%s"\r\n' % (name, fname))
+		s +=('Content-Type: %s\r\n\r\n' % mime)
+		self.con.putheader('Transfer-Encoding', 'chunked')
+		self.con.endheaders()
+		self.write(s)
+		del s,parsed
+
+	def write(self,data):
+		if len(data):
+			self.con.send(str(hex(len(data)))[2:]+'\r\n')
+			self.con.send(data)
+			self.con.send('\r\n')
+	def finish(self):
+		self.write('\r\n--'+LIMIT+'--\r\n\r\n')
+		self.con.send('0\r\n\r\n')
+		s = json.loads(self.con.getresponse().read())
+		del self.con
+		return s
+
+
 load_config()
