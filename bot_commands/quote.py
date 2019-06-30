@@ -1,5 +1,5 @@
 # coding:utf-8
-import random
+import random, array, time
 
 def init():
 	global face, jpeg
@@ -15,6 +15,7 @@ space_size = 10
 yspace = 10
 cspace = 2
 def create_image(w,h):
+	#return [array.array('B',[0]*w*3) for i in range(h)]
 	return [[0]*w*3 for i in range(h)]
 
 def render_text(image, x, y, text, width, height, r, g, b):
@@ -36,13 +37,17 @@ def render_text(image, x, y, text, width, height, r, g, b):
 		h = int(len(bitmap.buffer)/w)
 		if h > hmax: hmax = h
 		try:
-			for i in range(h):
-				for j in range(w):
-					l = int(bitmap.buffer[i*w+j])
-					if l:
-						image[y - face.glyph.bitmap_top+i][(x+j)*3] = int(r * l)
-						image[y - face.glyph.bitmap_top+i][(x+j)*3+1] = int(g * l)
-						image[y - face.glyph.bitmap_top+i][(x+j)*3+2] = int(b * l)
+			if r == g == b == 1:
+				for i in range(h):
+					im = image[y - face.glyph.bitmap_top+i]
+					for j in range(w):
+						im[(x+j)*3:(x+j+1)*3] = [bitmap.buffer[i*w+j]]*3
+			else:
+				for i in range(h):
+					im = image[y - face.glyph.bitmap_top+i]
+					for j in range(w):
+						l = int(bitmap.buffer[i*w+j])
+						im[(x+j)*3:(x+j+1)*3] = [int(l*r),int(l*g),int(l*b)]
 						
 		except Exception:
 			pass
@@ -57,13 +62,16 @@ def render_jpg(img,x,y,jpg):
 	data, w, h = jpeg.decode(jpg)
 
 	for i in range(h):
-		for j in range(w*3):
-			img[y+i][x+j] = ord(data[i*w*3+j])
+		im = img[y+i]
+		im[x:x+w*3] = data[i*w*3:(i+1)*w*3]
+	#	for j in range(w*3):
+	#		im[x+j] = ord(data[i*w*3+j])
 	del data
 
 def quote(p,t,m):
 	"cmd цытата,цитата Всратая цытата"
 	if not jpeg:init()
+	#time_start = time.time()
 
 	server = vk_call(CALL_GROUP,'photos.getMessagesUploadServer',{'peer_id':hybrid[p]})
 	attachments = []
@@ -86,6 +94,7 @@ def quote(p,t,m):
 		face.set_char_size( 1500 )
 		y = render_text(img, w - 300, y,  name, w, 1024,random.uniform(0.4,1),random.uniform(0.4,1),random.uniform(0.4,1)) + 50
 		if not y <= 1024: y = 1024
+		#time_end = time.time()
 		f = VkUploader(server['upload_url'],'photo','photo.png','image/png')
 		compress_image(img[0:y],w,y,f)
 		for i in img:del i[:]
@@ -95,4 +104,5 @@ def quote(p,t,m):
 		rr = vk_call(CALL_GROUP,'photos.saveMessagesPhoto',j)
 		del f
 		attachments.append('photo'+str(rr[0]['owner_id'])+'_'+str(rr[0]['id']))
+	#	time_end = time.time()
 	vk_send(p,'',','.join(attachments)),
