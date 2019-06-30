@@ -13,6 +13,7 @@ def lp_wait(mode):
 		longpoll = _longpolls[mode]
 		response = requests.get('{server}?act=a_check&key={key}&ts={ts}&wait=90'.format(server=longpoll['server'], key=longpoll['key'], ts=longpoll['ts'])).json()
 		listen = {'result':None,'ts':longpoll['ts']}
+		#raise requests.exceptions.ConnectionError('')
 #	print response
 		longpoll['ts'] = response['ts']
 #	for result in response['updates']:
@@ -21,6 +22,11 @@ def lp_wait(mode):
 		return response['updates']
 	except Exception as e:
 		print('Longpoll expeption '+str(e))
-		lp_start(mode)
-		time.sleep(10)
+		try:
+			time.sleep(5)
+			lp_start(mode)
+		except Exception:
+			print('Failed to restart longpoll, waiting')
+			time.sleep(60)
+	
 	return []
