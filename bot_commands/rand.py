@@ -6,7 +6,7 @@ def who(p,t,m):
 	users = vkpage.messages.getConversationMembers(peer_id=p, fields='id,first_name_acc,last_name_acc')
 	rand = random.randint(0, len(users.profiles)-1)
 	u = users.profiles[rand]
-	if m.text.split(' ')[1] == 'кого': # todo: wrap message too
+	if m.text.split(' ')[1] == 'кого':
 		name = u.first_name_acc + ' ' + u.last_name_acc
 	else:
 		name = u.first_name + ' ' + u.last_name
@@ -40,6 +40,10 @@ def when(p,t,m):
 		vk_send(p, random.choice(['Я уверена, ','Я думаю, ']) + t.replace('?','') +' '+ str(random.randint(1,31))+' '+random.choice(months)+' '+str(random.randint(2018,2050)))
 	else:
 		vk_send(p, random.choice(['Когда рак на горе свистнет','Никогда']))
+
+def choice(p,t,m):
+	"cmd выбери выбор"
+	vk_send(p,random.choice([a for f in t.split(', ') for a in f.split(' или ')]))
 
 def infa(p,t,m):
 	"cmd инфа Проверяет инфу"
