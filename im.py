@@ -105,7 +105,7 @@ def im_parse(s):
 	if int(error) != 0:
 		ex = 'Unknown VK exception'
 		try:
-			ex  = spl[5].decode('utf-8')
+			ex  = tostr(spl[5])
 		except Exception:
 			pass
 		if ex == REAUTH_CODE:
@@ -131,7 +131,7 @@ def im_request(chat_id, params):
 	try:
 		return im_parse(im_post("https://vk.com/al_im.php",params).text)
 	except ReauthException:
-		imconfig['remixsid'] = login(config['login'],config['password'])
+		imconfig['remixsid'] = login(config.login,config.password)
 		save_object('imconfig',imconfig)
 		im_request(chat_id,params)
 

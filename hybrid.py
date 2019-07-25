@@ -18,12 +18,12 @@ def mon_lp():
 		for u in updates:
 			print(u)
 			try:
-				if u['type'] == 'message_new':
-					from_id = u['object']['from_id']
-					convid = u['object']['conversation_message_id']
-					if from_id == config['page_id']:
-						parse_id = int(u['object']['text'].split('|')[1].split(']')[0])
-						hybrid[parse_id] = u['object']['peer_id']
+				if u.type == 'message_new':
+					from_id = u.object.from_id
+					convid = u.object.conversation_message_id
+					if from_id == config.page_id:
+						parse_id = int(u.object.text.split('|')[1].split(']')[0])
+						hybrid[parse_id] = u.object.peer_id
 						save_object("hybrid", hybrid)
 			except Exception as e:
 				print(str(e))
@@ -34,35 +34,38 @@ def mon_start():
 
 def mon_request(peer_id):
 	try:
-		im.add_chat_bot(peer_id, -config['group_id'])
+		im.add_chat_bot(peer_id, -config.group_id)
 	except Exception as e:
 		print('Failed to add bot: ',e)
-	message_id = vk_call(CALL_NORMAL,'messages.send', {'peer_id':peer_id, 'random_id':random.random(),'message':'[club'+str(config['group_id'])+'|'+str(peer_id)+']'})
+	message_id = vkpage.messages.send(peer_id=peer_id, random_id=random.random(),message='[club'+str(config['group_id'])+'|'+str(peer_id)+']')
 	time.sleep(1)
-	vk_call(CALL_NORMAL,'messages.delete', {'message_ids':str(message_id),'delete_for_all':1}, True)
+	try:
+		vkpage.messages.delete(message_ids=str(message_id),delete_for_all=1)
+	except Exception:
+		pass
 
 def vk_send(peer_id, text, attachments = None):
 	if not peer_id in hybrid:
 		mon_request(peer_id)
 		time.sleep(2)
-	params = {'peer_id':hybrid[peer_id], 'random_id':random.random(),'message':text}
+	params = D(peer_id=hybrid[peer_id], random_id=random.random(),message=text)
 	if attachments:
-		params['attachment'] = attachments
-	vk_call(CALL_GROUP,'messages.send',params)
+		params.attachment = attachments
+	vkgroup.messages.send(params)
 
 def mon_page():
 	lp_start(LP_PAGE)
 	while True:
 		updates = lp_wait(LP_PAGE)
 		for u in updates:
-			print(json.dumps(u,ensure_ascii=False).encode('utf-8'))
+			#print(json.dumps(u,ensure_ascii=False).encode('utf-8'))
 			if u[0] == 4:
 				message_id = u[1]
 				flags = u[2]
 				peer_id = u[3]
 				ts = u[4]
 				title = u[5]
-				text = tostr(u[6])
+				text = u[6]
 				spl = text.split(' ')
 				if tostr(tounicode(spl[0]).lower()) in config.names:
 					try:

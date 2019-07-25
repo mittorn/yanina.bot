@@ -90,7 +90,7 @@ def reload_commands():
 	load_commands()
 
 def handle_command(peer,cmd,text,msg):
-	if msg['from_id'] in config['owners'] and cmd in cmd_admcommands:
+	if msg.from_id in config.owners and cmd in cmd_admcommands:
 		cmd_admcommands[cmd](peer,text,msg)
 
 	if cmd in cmd_commands:

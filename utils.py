@@ -7,36 +7,42 @@ import inspect
 import sys
 
 
-def DictWrap(x):
+def D(x = None, **kw):
+	if x == None:
+		x = kw
 	if isinstance(x,dict):
-		return DictWrap_(x)
+		return DictWrap(x)
 	elif isinstance(x,list):
-		return [DictWrap(l) for l in x]
+		return [D(l) for l in x]
 	return tostr(x)
 
-class DictWrap_:
+class DictWrap:
 	"this wraps dict into object-like structure (dict.child1.child2)"
 	def __init__(self,d):
 		if not isinstance(d,dict):
 			t = "dictwrap from " + str(d) + " " +str(type(d))
 			print(t)
 			raise Exception(t)
-		self._dict = d
+		self.__dict__['_dict'] = d
 
 	def __getattr__(self,name):
 		# shortcut for json
 		if name == '_json':
 			return json.dumps(self._dict, ensure_ascii = False)
 		try:
-			return DictWrap(self._dict[name])
+			return D(self._dict[name])
 		except KeyError:
 			raise AttributeError(name)
 	def __getitem__(self,name):
 		if isinstance(name, int):
 			return self._dict.keys()[name]
-		return DictWrap(self._dict[name])
+		return D(self._dict[name])
 	def __setitem__(self,x,y):
-		return self._dict.__setitem__(x,y)
+		return self._dict.__setitem__(x,todict(y))
+	def __setattr__(self,x,y):
+	#	if x == '_dict':
+	#		self.__dict__[x] = y
+		return self._dict.__setitem__(x,todict(y))
 	def __repr__(self):
 		return self._dict.__repr__()
 	def __str__(self):
@@ -49,6 +55,10 @@ class DictWrap_:
 		for key in self._dict:
 			yield (key, self._dict[key])
 
+def todict(x):
+	if isinstance(x,DictWrap):
+		return x._dict
+	return x
 
 def aenum(*s):
 	"C-style enum (automatic counting)"

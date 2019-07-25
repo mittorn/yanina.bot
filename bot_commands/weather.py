@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 import datetime
 def format_weather(city):
-	weather = DictWrap(requests.get('http://api.openweathermap.org/data/2.5/weather', params={'lang':'ru', 'units': 'metric', 'APPID': 'ef23e5397af13d705cfb244b33d04561', 'q':city}).json())
+	weather = D(requests.get('http://api.openweathermap.org/data/2.5/weather', params={'lang':'ru', 'units': 'metric', 'APPID': 'ef23e5397af13d705cfb244b33d04561', 'q':city}).json())
 	try:
 		msg=""
 		msg+="Погода в " + str(weather.sys.country) + "/" + weather.name + ":\n"

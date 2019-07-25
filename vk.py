@@ -6,7 +6,7 @@ lp_modes = aenum('LP_PAGE','LP_GROUP')
 call_modes = aenum('CALL_NORMAL', 'CALL_AUDIO' ,'CALL_GROUP', 'CALL_BROWSER')
 api_versions = { CALL_NORMAL : '5.95', CALL_AUDIO : '5.71', CALL_GROUP : '5.95' }
 api_tokens = {}
-config = DictWrap({})
+config = D()
 
 class VkException(Exception):
 	def __init__(self, code, message):
@@ -31,7 +31,7 @@ def vk_call(mode,method,specparam, ignore = False):
 			param['v'] = api_versions[mode]
 		if mode in api_tokens:
 			param['access_token'] = api_tokens[mode]
-		param.update(specparam)
+		param.update(todict(specparam))
 		headers = {}
 		if mode == CALL_AUDIO:
 			headers['User-Agent'] = 'VKAndroidApp/4.38-816 (Android 6.0; SDK 23; x86; Google Nexus 5X; ru)'
@@ -51,7 +51,7 @@ def vk_call(mode,method,specparam, ignore = False):
 			if code == 3: 
 				raise NoSuchMethodException(code,json['error']['error_msg'])
 			raise VkException(code,json['error']['error_msg'])
-		return DictWrap(json['response'])
+		return D(json['response'])
 	except (Exception if ignore else NeverMatch) as e:
 		pass
 
@@ -59,9 +59,9 @@ def load_config():
 	global config
 	newconfig = load_json('vk')
 	config._dict.update(newconfig._dict)
-	api_tokens[CALL_NORMAL] = config['token_normal']
-	api_tokens[CALL_AUDIO] = config['token_audio']
-	api_tokens[CALL_GROUP] = config['token_group']
+	api_tokens[CALL_NORMAL] = config.token_normal
+	api_tokens[CALL_AUDIO] = config.token_audio
+	api_tokens[CALL_GROUP] = config.token_group
 
 
 
@@ -97,7 +97,7 @@ class VkUploader:
 	def finish(self):
 		self.write(b'\r\n--'+LIMIT.encode('ascii')+b'--\r\n\r\n')
 		self.con.send(b'0\r\n\r\n')
-		s = json.loads(self.con.getresponse().read())
+		s = D(json.loads(self.con.getresponse().read()))
 		del self.con
 		return s
 
@@ -110,6 +110,7 @@ class VKWrap:
 			self._name = name
 		def __getattr__(self,name):
 			def call(d = {},**args):
+				d = todict(d)
 				d.update(args)
 				try:
 					return vk_call(self._mode, self._name +'.'+ name, d)

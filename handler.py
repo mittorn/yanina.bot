@@ -10,8 +10,8 @@ except Exception:
 import traceback
 def handle_msg(msg):
 	try:
-		message = vk_call(CALL_NORMAL,'messages.getById',{'message_ids':msg[0],'extended':1,'fields':'first_name,last_name'})['items'][0]
-		message['cmd'] = msg[2]
+		message = vkpage.messages.getById(message_ids=msg[0],extended=1,fields='first_name,last_name').items[0]
+		message.cmd = msg[2]
 		#print(message._json)
 
 		handle_command(msg[1], msg[2], msg[3], message)
@@ -33,7 +33,7 @@ msg_queue = Queue()
 threads = []
 
 def handler_start():
-	for i in range(config['num_threads']):
+	for i in range(config.num_threads):
 		t = threading.Thread(target=worker)
 		t.start()
 		threads.append(t)
