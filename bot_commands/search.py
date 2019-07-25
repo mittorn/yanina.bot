@@ -35,6 +35,17 @@ def docs(p,t,m):
 	attachments = ','.join([ 'doc'+str(i.owner_id)+'_'+str(i.id) for i in res.items])
 	vk_send(p,'Доки по вашему запросу',attachments)
 
+def music(p,t,m):
+	"cmd музыка Поиск музыки"
+	res1 = vkaudio.audio.search(q=t,count=10,sort=2)
+	res2 = vkaudio.audio.search(q=t,count=10)
+	attachments1 = [ 'audio'+str(i.owner_id)+'_'+str(i.id) for i in res1.items]
+	attachments2 = [ 'audio'+str(i.owner_id)+'_'+str(i.id) for i in res2.items]
+	for a in attachments2:
+		if not a in attachments1:
+			attachments1.append(a)
+	vk_send(p,'Музыка по вашему запросу',','.join(attachments1))
+
 def gif(p,t,m):
 	"cmd гиф,гифки,gif Поиск гифок"
 	res = vkpage.docs.search(q=t +' ' +'.gif',count=200)
