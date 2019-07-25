@@ -22,7 +22,7 @@ match_yurl = re.compile(r'img_url=([^&]*)&')
 match_ytag = re.compile(r'<a class="serp-item" href="([^"]*)"')
 match_ydata= re.compile(r" data-bem='([^']*)' ")
 match_ydvid= re.compile(r' data-video="([^"]*)" ')
-
+match_ypic = re.compile(r' href="\/images\/search\?text\=([^"]*)">')
 match_ycaptcha_key = re.compile(r'<input class="form__key" type="hidden" name="key" value="([^"]*)"')
 match_ycaptcha_retpath = re.compile(r'<input class="form__retpath" type="hidden" name="retpath" value="([^"]*)"')
 match_ycaptcha_src = re.compile(r'<img class="image form__image" src="([^"]*)"')
@@ -52,8 +52,7 @@ def yadv_main(p,t,m):
 	page = tostr(requests.get('https://yandex.ru/images/touch/search',{'text':t,'rpt':'image_smart','p':0},headers=HEADERS_YANDEX_TOUCH).text)
 	yadv(p,page)
 
-def yadv_pic(p,t,m):
-	"cmd чоита поиск в хуяндексе по картинке"
+def get_single_photo(m):
 	w = 0
 	url = None
 	try:
@@ -64,7 +63,22 @@ def yadv_pic(p,t,m):
 		if s.width > w:
 			w = s.width
 			url = s.url
-	page = requests.get('https://yandex.ru/images/touch/search',{'text':'','rpt':'imagelike','url':url},headers=HEADERS_YANDEX_TOUCH).text.encode('utf-8')
+	return url
+
+def ypic(p,t,m):
+	"cmd что распознаванте картинки через яндекс"
+	page = tostr(requests.get('https://yandex.ru/images/search?url='+get_single_photo(m)+'&rpt=imageview').text)
+	
+	#f=open('ya.txt','wb')
+	#f.write(page)
+	#f.close()
+
+	r = match_ypic.findall(page)
+	vk_send(p,'Возможно это:\n' + ('\n'.join(['* '+unquote(t) for t in r])))
+
+def yadv_pic(p,t,m):
+	"cmd чоита поиск в хуяндексе по картинке"
+	page = requests.get('https://yandex.ru/images/touch/search',{'text':'','rpt':'imagelike','url':get_single_photo(m)},headers=HEADERS_YANDEX_TOUCH).text.encode('utf-8')
 	yadv(p,page)
 
 def yadv(p,page):
@@ -98,10 +112,10 @@ def yadv(p,page):
 def yvid(p,t,m):
 	"cmd яв,явидео видео со внешних ресурсов из хуяндекса"
 	page = tostr(requests.get('https://yandex.ru/video/touch/search',{'text':t,'p':0},headers=HEADERS_YANDEX_TOUCH).text)
-	f=open('ya.txt','wb')
-	f.write(page)
-	f.close()
-	print page
+	#f=open('ya.txt','wb')
+	#f.write(page)
+	#f.close()
+	#print page
 	images=[]
 	ydata=match_ydvid.findall(page)
 	if len(ydata) == 0:
