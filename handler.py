@@ -12,7 +12,7 @@ def handle_msg(msg):
 	try:
 		message = vkpage.messages.getById(message_ids=msg[0],extended=1,fields='first_name,last_name').items[0]
 		message.cmd = msg[2]
-		#print(message._json)
+		print(message._json)
 
 		handle_command(msg[1], msg[2], msg[3], message)
 	except Exception as e:

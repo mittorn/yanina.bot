@@ -6,6 +6,13 @@ import json
 import inspect
 import sys
 
+# shitty json does not work with utf-8
+def unicodeWrap(x):
+	if isinstance(x,dict):
+		return {key : unicodeWrap(x[key]) for key in x}
+	elif isinstance(x,list):
+		return [unicodeWrap(l) for l in x]
+	return tounicode(x)
 
 def D(x = None, **kw):
 	if x == None:
@@ -28,7 +35,7 @@ class DictWrap:
 	def __getattr__(self,name):
 		# shortcut for json
 		if name == '_json':
-			return json.dumps(self._dict, ensure_ascii = False)
+			return json.dumps(unicodeWrap(self._dict), ensure_ascii = False)
 		try:
 			return D(self._dict[name])
 		except KeyError:
@@ -40,8 +47,6 @@ class DictWrap:
 	def __setitem__(self,x,y):
 		return self._dict.__setitem__(x,todict(y))
 	def __setattr__(self,x,y):
-	#	if x == '_dict':
-	#		self.__dict__[x] = y
 		return self._dict.__setitem__(x,todict(y))
 	def __repr__(self):
 		return self._dict.__repr__()
