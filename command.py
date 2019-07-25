@@ -39,10 +39,10 @@ def load_commands():
 				f = v[d]
 				if not type(f) is types.FunctionType:continue
 				if not f.__doc__:continue
-				if sys.version_info[0] <= 2:
-					docstr = f.__doc__.decode('utf-8')
-				else:
-					docstr = f.__doc__
+				#if sys.version_info[0] <= 2:
+				#	docstr = f.__doc__ #.decode('utf-8')
+				#else:
+				docstr = f.__doc__ #.encode('utf-8')
 				doc = docstr.split(' ')
 				if doc[0] =='cmd':
 					l = doc[1].split(',')

@@ -12,7 +12,7 @@ def handle_msg(msg):
 	try:
 		message = vk_call(CALL_NORMAL,'messages.getById',{'message_ids':msg[0],'extended':1,'fields':'first_name,last_name'})['items'][0]
 		message['cmd'] = msg[2]
-		print(json.dumps(message,ensure_ascii=False).encode('utf-8'))
+		#print(message._json)
 
 		handle_command(msg[1], msg[2], msg[3], message)
 	except Exception as e:

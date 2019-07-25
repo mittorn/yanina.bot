@@ -21,7 +21,7 @@ def create_image(w,h):
 def render_text(image, x, y, text, width, height, r, g, b):
 	lstart = x
 	hmax = 0
-	for c in text:
+	for c in tounicode(text):
 		if c == ' ':
 			x += space_size
 			continue
@@ -73,36 +73,36 @@ def quote(p,t,m):
 	if not jpeg:init()
 	#time_start = time.time()
 
-	server = vk_call(CALL_GROUP,'photos.getMessagesUploadServer',{'peer_id':hybrid[p]})
+	server = vkgroup.photos.getMessagesUploadServer(peer_id=hybrid[p])
 	attachments = []
 
-	for fwd in m['fwd_messages']:
-		w = 500 + int(len(fwd['text'])/7)
+	for fwd in m.fwd_messages:
+		w = 500 + int(len(fwd.text)/7)
 		img = create_image(w,1024)
-		if fwd['from_id'] > 0:
-			u = vk_call(CALL_GROUP,'users.get',{'user_ids':fwd['from_id'],'fields':'photo_100'})[0]
-			name = u['first_name']+' '+u['last_name']
+		if fwd.from_id > 0:
+			u = vkpage.users.get(user_ids=fwd.from_id,fields='photo_100')[0]
+			name = u.first_name+' '+u.last_name
 		else:
-			u = vk_call(CALL_NORMAL,'groups.getById',{'group_ids':-fwd['from_id'],'fields':'photo_100'})[0]
-			name = u['name']
+			u = vkpage.groups.getById(group_ids=-fwd.from_id,fields='photo_100')[0]
+			name = u.name
 		try:
-			render_jpg(img, 30, 60, requests.get(u['photo_100']).content)
+			render_jpg(img, 30, 60, requests.get(u.photo_100).content)
 		except Exception:
 			pass
 		face.set_char_size( 1000 )
-		y = render_text(img,120,50,fwd['text'],w-50,1024,1,1,1) + 50
+		y = render_text(img,120,50,fwd.text,w-50,1024,1,1,1) + 50
 		face.set_char_size( 1500 )
 		y = render_text(img, w - 300, y,  name, w, 1024,random.uniform(0.4,1),random.uniform(0.4,1),random.uniform(0.4,1)) + 50
 		if not y <= 1024: y = 1024
 		#time_end = time.time()
-		f = VkUploader(server['upload_url'],'photo','photo.png','image/png')
+		f = VkUploader(server.upload_url,'photo','photo.png','image/png')
 		compress_image(img[0:y],w,y,f)
 		for i in img:del i[:]
 		del img[:]
 		j = f.finish()
 
-		rr = vk_call(CALL_GROUP,'photos.saveMessagesPhoto',j)
+		rr = vkgroup.photos.saveMessagesPhoto(j)
 		del f
-		attachments.append('photo'+str(rr[0]['owner_id'])+'_'+str(rr[0]['id']))
+		attachments.append('photo'+str(rr[0].owner_id)+'_'+str(rr[0].id))
 	#	time_end = time.time()
 	vk_send(p,'',','.join(attachments)),

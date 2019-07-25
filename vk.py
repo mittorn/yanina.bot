@@ -1,16 +1,17 @@
 from utils import *
+import sys
 import requests
 import time
 lp_modes = aenum('LP_PAGE','LP_GROUP')
 call_modes = aenum('CALL_NORMAL', 'CALL_AUDIO' ,'CALL_GROUP', 'CALL_BROWSER')
 api_versions = { CALL_NORMAL : '5.95', CALL_AUDIO : '5.71', CALL_GROUP : '5.95' }
 api_tokens = {}
-config = {}
+config = DictWrap({})
 
 class VkException(Exception):
 	def __init__(self, code, message):
 		self.code = code
-		Exception.__init__(self,message)
+		Exception.__init__(self,tostr(message))
 
 class NoSuchMethodException(VkException):
 	"for vkwrap"
@@ -50,14 +51,14 @@ def vk_call(mode,method,specparam, ignore = False):
 			if code == 3: 
 				raise NoSuchMethodException(code,json['error']['error_msg'])
 			raise VkException(code,json['error']['error_msg'])
-		return json['response']
+		return DictWrap(json['response'])
 	except (Exception if ignore else NeverMatch) as e:
 		pass
 
 def load_config():
 	global config
 	newconfig = load_json('vk')
-	config.update(newconfig)
+	config._dict.update(newconfig._dict)
 	api_tokens[CALL_NORMAL] = config['token_normal']
 	api_tokens[CALL_AUDIO] = config['token_audio']
 	api_tokens[CALL_GROUP] = config['token_group']
@@ -101,43 +102,6 @@ class VkUploader:
 		return s
 
 
-class DictWrap:
-	"this wraps dict into object-like structure (dict.child1.child2)"
-	def __init__(self,d):
-		self._dict = d
-
-	def _wrap(self,i):
-		"traverse children if needed"
-		if isinstance(i, list):
-			return [self._wrap(l) for l in i]
-		if isinstance(i, dict):
-			return DictWrap(i)
-		return i
-
-	def __getattr__(self,name):
-		# shortcut for json
-		if name == '_json':
-			return json.dumps(self._dict, ensure_ascii = False)
-		try:
-			return self._wrap(self._dict[name])
-		except KeyError:
-			raise AttributeError(name)
-	def __getitem__(self,name):
-		if isinstance(name, int):
-			return self._dict.keys()[name]
-		return self._dict[name]
-	def __repr__(self):
-		return self._dict.__repr__()
-	def __str__(self):
-		return self._dict.__str__()
-	def __dir__(self):
-		return self._dict.__dir__()
-	def __contains__(self,k):
-		return self._dict.__contains__(k)
-	def __iter__(self):
-		for key in self._dict:
-			yield (key, self._dict[key])
-
 class VKWrap:
 	"wrap vk api into object-like structure (vkwrap.docs.search(q='',count=1).items[0].owner_id)"
 	class _submethod:
@@ -145,9 +109,10 @@ class VKWrap:
 			self._mode = mode
 			self._name = name
 		def __getattr__(self,name):
-			def call(**args):
+			def call(d = {},**args):
+				d.update(args)
 				try:
-					return DictWrap(vk_call(self._mode, self._name +'.'+ name, args))
+					return vk_call(self._mode, self._name +'.'+ name, d)
 				except NoSuchMethodException:
 					raise AttributeError(name)
 			return call

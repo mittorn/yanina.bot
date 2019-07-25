@@ -62,9 +62,9 @@ def mon_page():
 				peer_id = u[3]
 				ts = u[4]
 				title = u[5]
-				text = u[6]
+				text = tostr(u[6])
 				spl = text.split(' ')
-				if spl[0].lower() in config['names']:
+				if tostr(tounicode(spl[0]).lower()) in config.names:
 					try:
 						enqueue_msg((message_id,peer_id,spl[1],text[len(spl[0])+len(spl[1])+2:]))
 					except Exception:
