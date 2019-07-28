@@ -12,7 +12,7 @@ import traceback
 import time
 HEADERS_GOOGLE = {'User-Agent':'LG8700/1.0 UP.Browser/6.2.3.9 (GUI) MMP/2.0'}
 HEADERS_YANDEX_SMART ={'User-Agent': 'Opera/9.80 (Android; Opera Mini/36.2.2254/119.132; U; id) Presto/2.12.423 Version/12.16'}
-HEADERS_YANDEX_TOUCH ={'User-Agent': 'Mozilla/5.0 (Linux; U; Android 4=7.1.2; en-us) AppleWebKit/633.1 (KHTML, like Gecko) Version/5.0 UCBrowser/10.7.0.398 U3/0.8.0 Mobile Safari/633.1'}
+HEADERS_YANDEX_TOUCH ={'User-Agent': 'Mozilla/5.0 (Linux; U; Android 4=7.1.2; en-us) AppleWebKit/633.1 (KHTML, like Gecko) Version/5.0 UCBrowser/12.7.0.398 U3/0.8.0 Mobile Safari/633.1'}
 types_img = ('jpg', 'bmp', 'png', 'jpeg', 'x-ms-bmp')
 types_doc = ('gif',)
 match_gtag = re.compile(r'<a class="image" href="([^"]*)"')
@@ -34,13 +34,13 @@ def ysolve(p,t,m):
 		return
 	r = ycaptchas[p]
 	r.update({'rep':t})
-	ysearch(p,tostr(requests.get('https://yandex.ru/checkcaptcha',r, headers=HEADERS_YANDEX).text))
+	ysearch(p,tostr(requests.get('https://yandex.ru/checkcaptcha',r, headers=HEADERS_YANDEX_SMART).text))
 	
 def ycaptcha(p,page):
 	ycaptchas[p] = {'key':match_ycaptcha_key.findall(page)[0],'retpath':match_ycaptcha_retpath.findall(page)[0].replace('&amp;','&')}
 	server_img = vkgroup.photos.getMessagesUploadServer(peer_id=hybrid[p])
 	f = VkUploader(server_img.upload_url,'photo','photo.png','image/png')
-	r = requests.get(match_ycaptcha_src.findall(page)[0],stream=True,headers=HEADERS_YANDEX)
+	r = requests.get(match_ycaptcha_src.findall(page)[0],stream=True,headers=HEADERS_YANDEX_SMART)
 	for chunk in r.iter_content(chunk_size=1000):
 		f.write(chunk)
 	rr = vkgroup.photos.saveMessagesPhoto(f.finish())
@@ -48,7 +48,7 @@ def ycaptcha(p,page):
 			
 	
 def yadv_main(p,t,m):
-	"cmd яндекс,тындекс поиск в хуяндексе с описанием"
+	"cmd яндекс,тындекс поиск в тындексе с описанием"
 	page = tostr(requests.get('https://yandex.ru/images/touch/search',{'text':t,'rpt':'image_smart','p':0},headers=HEADERS_YANDEX_TOUCH).text)
 	yadv(p,page)
 
@@ -77,7 +77,7 @@ def ypic(p,t,m):
 	vk_send(p,'Возможно это:\n' + ('\n'.join(['* '+unquote(t) for t in r])))
 
 def yadv_pic(p,t,m):
-	"cmd чоита поиск в хуяндексе по картинке"
+	"cmd чоита поиск в тындексе по картинке"
 	page = requests.get('https://yandex.ru/images/touch/search',{'text':'','rpt':'imagelike','url':get_single_photo(m)},headers=HEADERS_YANDEX_TOUCH).text.encode('utf-8')
 	yadv(p,page)
 
@@ -110,11 +110,11 @@ def yadv(p,page):
 	groupupload(p,images,'Результаты поиска изображений в Yandex:')
 
 def yvid(p,t,m):
-	"cmd яв,явидео видео со внешних ресурсов из хуяндекса"
+	"cmd яв,явидео видео со внешних ресурсов из тындекса"
 	page = tostr(requests.get('https://yandex.ru/video/touch/search',{'text':t,'p':0},headers=HEADERS_YANDEX_TOUCH).text)
-	#f=open('ya.txt','wb')
-	#f.write(page)
-	#f.close()
+	f=open('ya.txt','wb')
+	f.write(page)
+	f.close()
 	#print page
 	images=[]
 	ydata=match_ydvid.findall(page)
@@ -151,7 +151,7 @@ def yvid(p,t,m):
 	vk_send(p,'Видео из поиска яндекса',','.join(attachments))
 
 def ysearch(p,t,m):
-	"cmd я,ты поиск в хуяндексе"
+	"cmd я,ты поиск в тындексе"
 	page = tostr(requests.get('https://yandex.ru/images/smart/search',{'text':t,'rpt':'image_smart','p':0},headers=HEADERS_YANDEX_SMART).text)
 	images=[]
 	r = match_ytag.findall(page)
