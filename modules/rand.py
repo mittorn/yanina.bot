@@ -1,8 +1,10 @@
 # coding: utf-8
+from module_imports import *
 import random
 
+@cmd('кто', 'кого')
 def who(p,t,m):
-	"cmd кто,кого Выбор случайного участника беседы"
+	'Выбор случайного участника беседы'
 	users = vkpage.messages.getConversationMembers(peer_id=p, fields='id,first_name_acc,last_name_acc')
 	rand = random.randint(0, len(users.profiles)-1)
 	u = users.profiles[rand]
@@ -13,8 +15,8 @@ def who(p,t,m):
 	vk_send(p,'Я думаю, что ' + t.replace('?','') + ' у нас ' + '[id'+str(u.id)+'|'+name+']')
 	
 
+@cmd('бутылка')
 def bottle(p,t,m):
-	"cmd бутылка"
 	users = vkpage.messages.getConversationMembers(peer_id=p, fields='id,first_name_acc,last_name_acc')
 	rand = random.randint(0, len(users.profiles)-1)
 	u = users.profiles[rand]
@@ -33,18 +35,21 @@ def bottle(p,t,m):
 	else:
 		vk_send(p,random.choice(msg2) +' [id'+str(u.id)+'|'+name+']\n' + random.choice(msg1),'photo353166779_456284068')
 
+@cmd('когда')
 def when(p,t,m):
-	"cmd когда Выбор случайной даты"
+	'Выбор случайной даты'
 	months = ['сентября','октября','ноября','декабря','января','февраля','марта','апреля','мая','июня','июля','августа']
 	if random.randint(0,5):
 		vk_send(p, random.choice(['Я уверена, ','Я думаю, ']) + t.replace('?','') +' '+ str(random.randint(1,31))+' '+random.choice(months)+' '+str(random.randint(2018,2050)))
 	else:
 		vk_send(p, random.choice(['Когда рак на горе свистнет','Никогда']))
 
+@cmd('выбери')
 def choice(p,t,m):
-	"cmd выбери выбор"
+	'выбор'
 	vk_send(p,random.choice([a for f in t.split(', ') for a in f.split(' или ')]))
 
+@cmd('инфа')
 def infa(p,t,m):
-	"cmd инфа Проверяет инфу"
+	'Проверяет инфу'
 	vk_send(p, 'Вероятность того, что ' + t + ' равна ' + str(random.randint(0,146))+'%')

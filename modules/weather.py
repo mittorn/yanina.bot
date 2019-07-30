@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+from module_imports import *
 import datetime
 def format_weather(city):
 	weather = D(requests.get('http://api.openweathermap.org/data/2.5/weather', params={'lang':'ru', 'units': 'metric', 'APPID': 'ef23e5397af13d705cfb244b33d04561', 'q':city}).json())
@@ -27,8 +28,9 @@ def translit(x):
 
 	return tounicode(x).translate(tr)  # looks good
 
+@cmd('погода')
 def weather(p,t,m):
-	"cmd погода Погода по OWM"
+	'Погода по OWM'
 	msg = format_weather(t)
 	if msg == None:
 		msg = format_weather(translit(t))
@@ -37,3 +39,4 @@ def weather(p,t,m):
 		return
 	vk_send(p,msg)
 		#apisay('Если город не в РФ, пиши английское название',toho,'')
+

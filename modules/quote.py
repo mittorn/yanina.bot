@@ -1,4 +1,5 @@
 # coding:utf-8
+from module_imports import *
 import random, array, time
 
 def init():
@@ -68,8 +69,9 @@ def render_jpg(img,x,y,jpg):
 	#		im[x+j] = ord(data[i*w*3+j])
 	del data
 
+@cmd('цытата', 'цитата')
 def quote(p,t,m):
-	"cmd цытата,цитата Всратая цытата"
+	'Всратая цытата'
 	if not jpeg:init()
 	#time_start = time.time()
 
@@ -106,3 +108,4 @@ def quote(p,t,m):
 		attachments.append('photo'+str(rr[0].owner_id)+'_'+str(rr[0].id))
 	#	time_end = time.time()
 	vk_send(p,'',','.join(attachments)),
+

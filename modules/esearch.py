@@ -1,4 +1,5 @@
 # coding: utf-8
+from module_imports import *
 import threading
 import re
 
@@ -28,8 +29,8 @@ match_ycaptcha_retpath = re.compile(r'<input class="form__retpath" type="hidden"
 match_ycaptcha_src = re.compile(r'<img class="image form__image" src="([^"]*)"')
 ycaptchas = {}
 
+@cmd('як')
 def ysolve(p,t,m):
-	"cmd як"
 	if not p in ycaptchas:
 		return
 	r = ycaptchas[p]
@@ -47,8 +48,9 @@ def ycaptcha(p,page):
 	vk_send(p,'Введите "Ян як (текст капчи)','photo'+str(rr[0].owner_id)+'_'+str(rr[0].id))
 			
 	
+@cmd('яндекс', 'тындекс')
 def yadv_main(p,t,m):
-	"cmd яндекс,тындекс поиск в тындексе с описанием"
+	'поиск в тындексе с описанием'
 	page = tostr(requests.get('https://yandex.ru/images/touch/search',{'text':t,'rpt':'image_smart','p':0},headers=HEADERS_YANDEX_TOUCH).text)
 	yadv(p,page)
 
@@ -65,8 +67,9 @@ def get_single_photo(m):
 			url = s.url
 	return url
 
+@cmd('что')
 def ypic(p,t,m):
-	"cmd что распознаванте картинки через яндекс"
+	'распознаванте картинки через яндекс'
 	page = tostr(requests.get('https://yandex.ru/images/search?url='+get_single_photo(m)+'&rpt=imageview').text)
 	
 	#f=open('ya.txt','wb')
@@ -76,8 +79,9 @@ def ypic(p,t,m):
 	r = match_ypic.findall(page)
 	vk_send(p,'Возможно это:\n' + ('\n'.join(['* '+unquote(t) for t in r])))
 
+@cmd('чоита')
 def yadv_pic(p,t,m):
-	"cmd чоита поиск в тындексе по картинке"
+	'поиск в тындексе по картинке'
 	page = requests.get('https://yandex.ru/images/touch/search',{'text':'','rpt':'imagelike','url':get_single_photo(m)},headers=HEADERS_YANDEX_TOUCH).text.encode('utf-8')
 	yadv(p,page)
 
@@ -109,8 +113,9 @@ def yadv(p,page):
 	#vk_send(p,str(images)[0:4000])
 	groupupload(p,images,'Результаты поиска изображений в Yandex:')
 
+@cmd('яв', 'явидео')
 def yvid(p,t,m):
-	"cmd яв,явидео видео со внешних ресурсов из тындекса"
+	'видео со внешних ресурсов из тындекса'
 	page = tostr(requests.get('https://yandex.ru/video/touch/search',{'text':t,'p':0},headers=HEADERS_YANDEX_TOUCH).text)
 	f=open('ya.txt','wb')
 	f.write(page)
@@ -150,8 +155,9 @@ def yvid(p,t,m):
 			print e
 	vk_send(p,'Видео из поиска яндекса',','.join(attachments))
 
+@cmd('я', 'ты')
 def ysearch(p,t,m):
-	"cmd я,ты поиск в тындексе"
+	'поиск в тындексе'
 	page = tostr(requests.get('https://yandex.ru/images/smart/search',{'text':t,'rpt':'image_smart','p':0},headers=HEADERS_YANDEX_SMART).text)
 	images=[]
 	r = match_ytag.findall(page)
@@ -168,8 +174,9 @@ def ysearch(p,t,m):
 	#vk_send(p,str(images))
 	groupupload(p,images, 'Картинки из яндекса')
 
+@cmd('g', 'г', 'гы')
 def gsearch(p,t,m):
-	"cmd g,г,гы поиск в кукле"
+	'поиск в кукле'
 	page = tostr(requests.get('https://www.google.by/search',{'q':t,'source':'lnms','tbm':'isch'},headers=HEADERS_GOOGLE).text)
 
 	r = match_gtag.findall(page)
@@ -246,3 +253,4 @@ def groupupload(p,images,title = ''):
 	else:
 		time.sleep(15)
 		done()
+

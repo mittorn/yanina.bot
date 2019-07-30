@@ -1,6 +1,6 @@
 # coding: utf-8
 from lp import *
-from command import *
+from modload import handle_command
 import threading
 import sys, os
 try:

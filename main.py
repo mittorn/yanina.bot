@@ -1,19 +1,22 @@
-import sys
-#print(sys.getdefaultencoding())
+import sys#print(sys.getdefaultencoding())
 def force_utf8():
 	import imp
 	_sys_org = imp.load_dynamic('_sys_org', 'sys')
 	_sys_org.setdefaultencoding('utf-8')
 	del _sys_org
 
-#force_utf8()
+try:
+	force_utf8()
+except Exception:
+	pass
 #print(sys.getdefaultencoding())
 
 from handler import *
 from hybrid import *
+from modules import load_modules
 import os
 
-load_commands()
+load_modules()
 try:
 	mon_start()
 	handler_start()

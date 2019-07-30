@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from module_imports import *
 
 
+@cmd('хуй')
 def xyu(p,t,m):
-	"cmd хуй"
 	if len(t) == 0:
 		vk_send(p,'пошёл нахуй')
 		return

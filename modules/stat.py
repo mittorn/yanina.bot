@@ -1,10 +1,12 @@
 # coding:utf-8
+from module_imports import *
 import psutil, time
 from datetime import timedelta
 
 start_time = time.time()
+@cmd('стат')
 def stat(p,t,m):
-	"cmd стат Статистика крекера"
+	'Статистика крекера'
 	text = '[ Статистика ]<br>Система:<br>&#8195;Процессоры:<br>'
 	for idx, cpu in enumerate(psutil.cpu_percent(interval=1, percpu=True)):
 		text += '&#8195;&#8195;Процессор №'+str(idx+1)+': '+str(cpu)+'%<br>'
@@ -15,3 +17,4 @@ def stat(p,t,m):
 	text += 'Бот:<br>&#8195;&#8195;Время работы: '+str(timedelta(seconds=end_time - start_time))
 	text += '\nВерсия python:\n'+str(sys.version)
 	vk_send(p,text)
+

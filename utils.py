@@ -39,8 +39,13 @@ class DictWrap:
 		try:
 			return D(self._dict[name])
 		except KeyError:
-			raise AttributeError(name)
+			# if d.attr
+			return None
+			# if attr in d and d.attr
+			# raise AttributeError(name)
 	def __getitem__(self,name):
+		if isinstance(name,dict):
+			print name
 		if isinstance(name, int):
 			return self._dict.keys()[name]
 		return D(self._dict[name])
