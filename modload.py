@@ -11,11 +11,13 @@ mod_instance = 0
 
 def load_modules(p=0):
 	global mod_instance, mod_imports
+	print loaded_modules
 	mod_instance += 1
 	if not mod_imports:
 		mod_imports = __import__('module_imports')
 
 	for modname in filter(lambda x: x and x[-3:] == ".py", os.listdir("modules")):
+		print modname
 		try:
 			module = imp.load_source('mod_'+str(mod_instance)+'_'+modname[0:-3],'modules/'+modname)
 			loaded_modules.append(module)
@@ -32,8 +34,7 @@ def load_modules(p=0):
 			print(e)
 
 def unload_modules():
-	mod_commands.clear()
-	mod_admcommands.clear()
+	mod_commands._dict.clear()
 	for module in loaded_modules:
 		n = '' + module.__name__
 		shit = []
@@ -43,17 +44,21 @@ def unload_modules():
 			module.__dict__.pop(s)
 		del sys.modules[n]
 		del module
+		del shit[:]
 	del loaded_modules[:]
 
 def reload_modules(p=0):
+	print 'b'
 	try:
 		unload_modules()
+		print 'a'
 	except Exception as e:
 		print(e)
-		mod_commands.clear()
+		mod_commands._dict.clear()
 		del loaded_modules[:]
-
-	load_modules(p)
+	print 'l'
+	load_modules()
+	print 'd'
 
 def handle_command(peer,cmd,text,msg):
 	if not cmd in mod_commands:
