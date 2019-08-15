@@ -5,7 +5,8 @@ except Exception:
 import json
 import inspect
 import sys
-
+import os
+import threading
 # shitty json does not work with utf-8
 def unicodeWrap(x):
 	if isinstance(x,dict):
@@ -98,28 +99,61 @@ def tounicode(x):
 	if sys.version_info[0] == 2 and isinstance(x,str):
 		return x.decode('utf-8')
 	return x
-	
+
+file_locks = {}
+
+def flock(name):
+	if not name in file_locks:
+		file_locks[name] = threading.Lock()
+	l = file_locks[name]
+	l.acquire()
+	return l
 
 def save_object(name, obj):
-	f = open('data/'+name+'.pkl', 'wb')
-	pickle.dump(obj, f, 2)
-	f.close()
+	try:
+		fname = 'data/'+name+'.pkl'
+		l = flock(name)
+		f = open(fname + '.new', 'wb')
+		pickle.dump(obj, f, 2)
+		f.close()
+		os.remove(fname)
+		os.rename(fname + '.new',fname)
+	finally:
+		l.release()
 
 def load_object(name):
-	f = open('data/'+name+'.pkl','rb')
-	obj = pickle.load(f)
-	f.close()
+	try:
+		fname = 'data/'+name+'.pkl'
+		l = flock(fname)
+		f = open(fname,'rb')
+		obj = pickle.load(f)
+		f.close()
+	finally:
+		l.release()
 	return obj
 
 def load_json(name):
-	f = open('config/'+name+'.json','r')
-	obj = json.load(f)
-	f.close()
+	try:
+		fname = 'config/'+name+'.json'
+		l = flock(fname)
+		f = open(fname,'r')
+	
+		obj = json.load(f)
+		f.close()
+	finally:
+		l.release()
 	return DictWrap(obj)
 
 def save_json(name, obj):
-	if isinstance(obj,DictWrap):
-		obj = obj._dict
-	f = open('config/'+name+'.json', 'w')
-	json.dump(obj, f, 2)
-	f.close()
+	try:
+		if isinstance(obj,DictWrap):
+			obj = obj._dict
+		fname = 'config/'+name+'.json'
+		l = flock(fname)
+		f = open(fname + '.new', 'w')
+		json.dump(obj, f, 2)
+		f.close()
+		os.remove(fname)
+		os.rename(fname+'.new', fname)
+	finally:
+		l.release()
