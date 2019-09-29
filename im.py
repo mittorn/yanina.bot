@@ -98,9 +98,9 @@ def im_post(url, payload, headers = {}):
         print(r2.headers)
         return r
 
-def im_parse(s):
+def im_parse_old(s):
 	spl = s.split('<!>')
-#	print spl
+	print spl
 	error = spl[4]
 	if int(error) != 0:
 		ex = 'Unknown VK exception'
@@ -122,6 +122,35 @@ def im_parse(s):
 		if type == 'bool':
 			return value == '1'
 	return base
+
+def im_parse(s):
+	print(tostr(s))
+	result = json.loads(s[4:])
+	d = D(result)
+	error = d.payload[0]
+	if int(error) != 0:
+		ex = 'Unknown VK exception'
+		try:
+			ex  = tostr(d.payload[1][0][1:-1])
+		except Exception:
+			pass
+		if ex == REAUTH_CODE:
+			raise ReauthException()
+		raise Exception(ex)
+	base = d.payload[1][0][1:-1]
+	print(base)
+	if base[0] == '<':
+		l = base.find('>')
+		type = base[2:l]
+		value = base[l+1:]
+#		print type
+		if type == 'json':
+			return json.loads(value)
+		if type == 'bool':
+			return value == '1'
+	return base
+	
+
 
 
 def im_request(chat_id, params):
